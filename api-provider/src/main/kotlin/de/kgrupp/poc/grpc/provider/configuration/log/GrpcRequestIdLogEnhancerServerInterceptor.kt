@@ -5,10 +5,13 @@ import io.grpc.Metadata
 import io.grpc.ServerCall
 import io.grpc.ServerCallHandler
 import io.grpc.ServerInterceptor
+import io.grpc.kotlin.CoroutineContextServerInterceptor
+import kotlinx.coroutines.slf4j.MDCContext
 import net.devh.boot.grpc.server.interceptor.GrpcGlobalServerInterceptor
 import org.slf4j.MDC
 import org.springframework.core.annotation.Order
 import java.util.UUID
+import kotlin.coroutines.CoroutineContext
 
 const val LOG_REQUEST_ID = "request_id"
 
@@ -24,6 +27,15 @@ class GrpcRequestIdLogEnhancerServerInterceptor : ServerInterceptor {
         return LogEnhancerServerCallListener(next.startCall(call, headers))
     }
 
+}
+
+@GrpcGlobalServerInterceptor
+@Order(2)
+class GrpcRequestIdLogEnhancerCoroutineContextServerInterceptor : CoroutineContextServerInterceptor() {
+    override fun coroutineContext(call: ServerCall<*, *>, headers: Metadata): CoroutineContext {
+        // ensure MDC log is available in coroutine context
+        return MDCContext()
+    }
 }
 
 private class LogEnhancerServerCallListener<ReqT>(delegate: ServerCall.Listener<ReqT>) : SimpleForwardingServerCallListener<ReqT>(delegate) {

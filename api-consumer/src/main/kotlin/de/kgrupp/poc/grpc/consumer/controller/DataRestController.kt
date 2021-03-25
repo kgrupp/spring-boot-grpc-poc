@@ -2,6 +2,7 @@ package de.kgrupp.poc.grpc.consumer.controller
 
 import de.kgrupp.poc.grpc.consumer.model.Data
 import de.kgrupp.poc.grpc.consumer.service.DataService
+import kotlinx.coroutines.runBlocking
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.web.bind.annotation.GetMapping
@@ -20,7 +21,9 @@ class DataRestController(private val dataService: DataService) {
     @GetMapping(path = ["/{id}"])
     fun getOne(@PathVariable id: String): ResponseData {
         logger.info("get data from service for id '$id'")
-        return dataService.get(id).toResponse()
+        return runBlocking {
+            dataService.get(id).toResponse()
+        }
     }
 }
 

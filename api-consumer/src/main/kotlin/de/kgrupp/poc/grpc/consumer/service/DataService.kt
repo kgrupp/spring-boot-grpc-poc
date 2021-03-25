@@ -6,5 +6,5 @@ import org.springframework.stereotype.Service
 
 @Service
 class DataService(private val dataGrpcService: DataGrpcService) {
-    fun get(id: String): Data = dataGrpcService.loadData(id)
+    suspend fun get(id: String): Data = dataGrpcService.loadData(id)
 }
