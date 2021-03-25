@@ -1,0 +1,9 @@
+spring:
+  profiles:
+    include: test
+grpc:
+  client:
+    api-provider:
+      # grpc client to api-provider should use internal process to not fail startup
+      # actually no server is started and on calling the service method it will fail (unless mocked in the specific test)
+      address: in-process:test

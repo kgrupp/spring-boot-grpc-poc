@@ -1,0 +1,16 @@
+syntax = "proto3";
+option java_multiple_files = true;
+
+package de.kgrupp.poc.grpc;
+
+service V1ApiService {
+    rpc GetData ( GetDataRequest ) returns ( GetDataReply ) {}
+}
+
+message GetDataRequest {
+   string id = 1;
+}
+
+message GetDataReply {
+  string data = 1;
+}

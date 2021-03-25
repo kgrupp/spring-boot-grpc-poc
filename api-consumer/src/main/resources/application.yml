@@ -1,0 +1,17 @@
+server:
+  port: 9010
+grpc:
+  client:
+    api-provider:
+      address: dns:///localhost:9001
+      negotiationType: PLAINTEXT
+service:
+  rest:
+    basic-auth:
+      user: admin
+      password: admin
+  api-provider:
+    grpc:
+      basic-auth:
+        user: admin
+        password: admin

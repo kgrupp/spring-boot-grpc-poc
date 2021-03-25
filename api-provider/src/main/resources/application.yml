@@ -1,0 +1,11 @@
+server:
+  port: 9000
+grpc:
+  server:
+    port: 9001
+
+service:
+  grpc:
+    basic-auth:
+      user: admin
+      password: admin
