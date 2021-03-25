@@ -3,14 +3,14 @@
 Basic working example using:
 * Gradle Kotlin DSL
 * Spring Boot
-* Kotlin and Kotlin Coroutines
+* Kotlin and [Kotlin Coroutines](https://github.com/Kotlin/kotlinx.coroutines)
 * [gRPC-Spring-Boot-Starter (by yidongnan)](https://yidongnan.github.io/grpc-spring-boot-starter/en)
-* grpc-kotlin
-* logback
+* [grpc-kotlin](https://github.com/grpc/grpc-kotlin)
+* [logstash-logback-encoder](https://github.com/logstash/logstash-logback-encoder)
 
 It provides:
 * authentication and authorization (basic auth)
-* request-id tracing across services with logback
+* request-id tracing across services (supporting kotlins coroutines)
 * working JUnit5 tests (consumer and provider)
 
 ## Test Communication Manually
