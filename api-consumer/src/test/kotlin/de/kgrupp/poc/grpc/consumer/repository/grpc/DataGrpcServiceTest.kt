@@ -1,16 +1,17 @@
 package de.kgrupp.poc.grpc.consumer.repository.grpc
 
 import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.argThat
 import de.kgrupp.poc.grpc.GetDataReply
-import de.kgrupp.poc.grpc.V1ApiServiceGrpc
+import de.kgrupp.poc.grpc.V1ApiServiceGrpcKt
 import de.kgrupp.poc.grpc.consumer.testutils.IntegrationTest
 import io.grpc.Status
 import io.grpc.StatusRuntimeException
+import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.mockito.ArgumentMatchers.argThat
 import org.mockito.Mockito
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.times
@@ -20,34 +21,34 @@ import org.springframework.beans.factory.annotation.Autowired
 @IntegrationTest
 class DataGrpcServiceTest {
 
-    private var apiServiceBlockingStub: V1ApiServiceGrpc.V1ApiServiceBlockingStub = mockApiServiceBlockingStub()
+    private var apiServiceStub: V1ApiServiceGrpcKt.V1ApiServiceCoroutineStub = mockApiServiceStub()
 
     @Autowired
     private lateinit var dataGrpcService: DataGrpcService
 
     @BeforeEach
     fun setUp() {
-        apiServiceBlockingStub = mockApiServiceBlockingStub()
-        dataGrpcService.setApiServiceBlockingStub(apiServiceBlockingStub)
+        apiServiceStub = mockApiServiceStub()
+        dataGrpcService.setApiServiceStub(apiServiceStub)
     }
 
     @Test
-    fun happyPath() {
-        Mockito.`when`(apiServiceBlockingStub.getData(argThat { "my-id" == it.id })).thenReturn(GetDataReply.newBuilder().setData("some-data").build())
+    fun happyPath() = runBlocking<Unit> {
+        Mockito.`when`(apiServiceStub.getData(argThat { "my-id" == this.id })).thenReturn(GetDataReply.newBuilder().setData("some-data").build())
 
         val data = dataGrpcService.loadData("my-id")
 
         assertEquals("my-id", data.id)
         assertEquals("some-data", data.value)
-        verify(apiServiceBlockingStub, times(1))
+        verify(apiServiceStub, times(1))
             .withCallCredentials(any())
-        verify(apiServiceBlockingStub, times(1))
-            .getData(argThat { it.id == "my-id" })
+        verify(apiServiceStub, times(1))
+            .getData(argThat { this.id == "my-id" })
     }
 
     @Test
-    fun errorPathUnavailableService() {
-        Mockito.`when`(apiServiceBlockingStub.getData(argThat { "my-id" == it.id })).thenThrow(
+    fun errorPathUnavailableService() = runBlocking<Unit> {
+        Mockito.`when`(apiServiceStub.getData(argThat { "my-id" == this.id })).thenThrow(
             Status.UNAVAILABLE.asRuntimeException()
         )
 
@@ -56,15 +57,15 @@ class DataGrpcServiceTest {
         }
 
         assertEquals(Status.UNAVAILABLE, exception.status)
-        verify(apiServiceBlockingStub, times(1))
+        verify(apiServiceStub, times(1))
             .withCallCredentials(any())
-        verify(apiServiceBlockingStub, times(1))
-            .getData(argThat { it.id == "my-id" })
+        verify(apiServiceStub, times(1))
+            .getData(argThat { this.id == "my-id" })
     }
 }
 
-fun mockApiServiceBlockingStub(): V1ApiServiceGrpc.V1ApiServiceBlockingStub {
-    val mock = mock(V1ApiServiceGrpc.V1ApiServiceBlockingStub::class.java)
+fun mockApiServiceStub(): V1ApiServiceGrpcKt.V1ApiServiceCoroutineStub {
+    val mock = mock(V1ApiServiceGrpcKt.V1ApiServiceCoroutineStub::class.java)
     Mockito.`when`(mock.withCallCredentials(argThat { true })).thenReturn(mock)
     return mock
 }

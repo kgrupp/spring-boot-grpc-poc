@@ -1,8 +1,9 @@
 package de.kgrupp.poc.grpc.provider.controller.grpc
 
-import de.kgrupp.poc.grpc.V1ApiServiceGrpc
+import de.kgrupp.poc.grpc.V1ApiServiceGrpcKt
 import de.kgrupp.poc.grpc.provider.configuration.grpc.GrpcConfiguration
 import io.grpc.Status
+import kotlinx.coroutines.runBlocking
 import net.devh.boot.grpc.client.autoconfigure.GrpcClientAutoConfiguration
 import net.devh.boot.grpc.client.inject.GrpcClient
 import net.devh.boot.grpc.client.security.CallCredentialsHelper.basicAuth
@@ -27,15 +28,14 @@ class GetDataGrpcAuthorizationTest {
     private lateinit var configuration: GrpcConfiguration
 
     @GrpcClient("inProcess")
-    private lateinit var apiService: V1ApiServiceGrpc.V1ApiServiceBlockingStub
+    private lateinit var apiService: V1ApiServiceGrpcKt.V1ApiServiceCoroutineStub
 
     @Test
     fun getDataRejectsWhenAuthorizationIsMissing() {
         val request = buildRequest("my-id")
 
         val exception = assertThrows<Throwable> {
-            apiService.getData(request)
-            return
+            runBlocking { apiService.getData(request) }
         }
 
         assertThat(exception.message).contains(Status.Code.UNAUTHENTICATED.name)
@@ -46,9 +46,10 @@ class GetDataGrpcAuthorizationTest {
         val request = buildRequest("my-other-id")
 
         val exception = assertThrows<Throwable> {
-            apiService.withCallCredentials(basicAuth("invalid", "invalid"))
-                .getData(request)
-            return
+            runBlocking {
+                apiService.withCallCredentials(basicAuth("invalid", "invalid"))
+                    .getData(request)
+            }
         }
 
         assertThat(exception.message).contains(Status.Code.UNAUTHENTICATED.name)
@@ -58,8 +59,10 @@ class GetDataGrpcAuthorizationTest {
     fun getDataHappyPath() {
         val request = buildRequest("my-id")
 
-        val reply = apiService.withCallCredentials(basicAuth(configuration.basicAuthUser, configuration.basicAuthPassword))
+        val reply = runBlocking {
+            apiService.withCallCredentials(basicAuth(configuration.basicAuthUser, configuration.basicAuthPassword))
                 .getData(request)
+        }
 
         assertThat(reply.data).contains("my-id")
     }

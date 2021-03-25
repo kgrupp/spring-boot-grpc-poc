@@ -6,6 +6,7 @@ import com.nhaarman.mockitokotlin2.verify
 import de.kgrupp.poc.grpc.consumer.configuration.rest.RestConfiguration
 import de.kgrupp.poc.grpc.consumer.service.DataService
 import de.kgrupp.poc.grpc.consumer.testutils.IntegrationTest
+import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.mock.mockito.MockBean
@@ -32,7 +33,10 @@ class DataRestControllerTest {
             .defaultHeaders { it.setBasicAuth(configuration.basicAuthUser, configuration.basicAuthPassword) }
             .build()
             .get().uri("$DATA_PATH/my-id").exchange()
-        verify(dataService, times(1)).get(eq("my-id"))
+
+        runBlocking {
+            verify(dataService, times(1)).get(eq("my-id"))
+        }
     }
 
     @Test

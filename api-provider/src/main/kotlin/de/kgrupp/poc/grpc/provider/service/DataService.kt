@@ -9,7 +9,7 @@ private val logger: Logger = LoggerFactory.getLogger(DataService::class.java)
 
 @Service
 class DataService {
-    fun get(id: String): Data {
+    suspend fun get(id: String): Data {
         logger.info("get data for id '$id'")
         return Data("This is your custom data for this id $id.")
     }

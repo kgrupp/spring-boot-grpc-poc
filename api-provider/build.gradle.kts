@@ -43,13 +43,16 @@ repositories {
 dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.4.31")
     implementation("org.jetbrains.kotlin:kotlin-reflect:1.4.31")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.3")
 
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-security")
 
     implementation("net.logstash.logback:logstash-logback-encoder:6.6")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-slf4j:1.4.3")
 
     implementation("net.devh:grpc-server-spring-boot-starter:2.11.0.RELEASE")
+    implementation("io.grpc:grpc-kotlin-stub:1.0.0")
     implementation("com.google.protobuf:protobuf-java-util:3.15.6")
 
     // Testing libraries
@@ -68,6 +71,9 @@ protobuf {
         id("grpc") {
             artifact = "io.grpc:protoc-gen-grpc-java:1.36.0"
         }
+        id("grpckt") {
+            artifact = "io.grpc:protoc-gen-grpc-kotlin:1.0.0:jdk7@jar"
+        }
     }
 
     generateProtoTasks {
@@ -75,6 +81,9 @@ protobuf {
             it.plugins {
                 id("grpc") {
                     outputSubDir = "java"
+                }
+                id("grpckt") {
+                    outputSubDir = "kotlin"
                 }
             }
         }
